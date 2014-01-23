@@ -4,5 +4,14 @@
 		{
 			"path": "/home/avoid3d/notify-python"
 		}
-	]
+	],
+	"build_systems":
+        [
+            {
+            "name": "Nosetests",
+            "working_dir": "/home/avoid3d/notify-python",
+            "cmd": ["venv/bin/python", "manage.py", "test"]
+            }
+        ]
+
 }
