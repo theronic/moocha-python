@@ -37,3 +37,6 @@ nosetests.xml
 
 # Sublime Workspace
 *.sublime-workspace
+
+# Python virtualenv.
+venv
