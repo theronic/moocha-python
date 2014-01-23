@@ -1,8 +1,17 @@
-from flask_script import Manager
-from notify import app
+from flask_script import Manager, Shell
+from notify import app, gt, emailer
 import nose
 
 manager = Manager(app)
+
+def make_shell_context():
+	return dict(
+		app=app,
+		gt=gt,
+		emailer=emailer,
+	)
+
+manager.add_command('shell', Shell(make_context=make_shell_context))
 
 @manager.command
 def test():
