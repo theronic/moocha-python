@@ -1,29 +1,27 @@
 from bs4 import BeautifulSoup
 import mechanize
 from urllib import urlencode
+from categories import categories
 
 class Gumtree(object):
-	def __init__(self):
+	def __init__(self, app):
+		self.app = app
+		self.home_page_url = 'http://www.gumtree.co.za'
 		self.search_url = 'http://www.gumtree.co.za/search.html'
+		self.categories = categories
 
-		self.categories = {
-			'all_categories': '',
-			'automotive_vehicles': 5,
-			'property': 2,
-			'jobs': 8,
-			'job_seekers': 9389,
-			'services': 9,
-			'home_and_garden': 9175,
-			'electronics': 9178,
-			'baby_and_kids': 9176,
-			'boats_and_watercraft': 9101,
-			'business_to_business': 9171,
-			'fasion': 9177,
-			'pets': 9122,
-			'sports_and_leisure': 9179,
-			'community': 6,
-			'events': 9067,
-		}
+	def get_categories_from_website(self):
+		# Get the contents of the home page.
+		home_page_contents = self.get_page_contents(self.home_page_url)
+		soup = BeautifulSoup(home_page_contents)
+		select = soup.find(class_='select')
+		categories = dict() 
+		for link in select.find_all('a'):
+			_id = link.get('data-id')
+			name = link.contents[0]
+			categories[name] = _id
+		return categories
+
 
 	def get_page_contents(self, url):
 		# Instantiate a mechanize browser to open the page, (makes
@@ -33,7 +31,7 @@ class Gumtree(object):
 		browser.open(url)
 		return browser.response().read()
 
-	def search(self, terms, category='all_categories'):
+	def search(self, terms, category='All categories'):
 		# Build the search url, combining search terms and categories.
 		url = '?'.join([self.search_url, urlencode({
 			'q': terms,
@@ -55,13 +53,14 @@ class Gumtree(object):
 		# Listings without pictures.
 		for result in results_list_view.find_all('li', class_='result'):
 			results.append({
-					'description': str(result.find(class_='description').contents),
-					'title': str(result.find(class_='title').a.contents),
+					'description': unicode(result.find(class_='description').contents[0]),
+					'title': unicode(result.find(class_='title').a.contents[0]),
 				})
 		# Listings with pictures.
 		for result in results_list_view.find_all('li', class_='result pictures'):
 			results.append({
-					'description': str(result.find(class_='description').contents),
-					'title': str(result.find(class_='title').a.contents),
+					'description': unicode(result.find(class_='description').contents[0]),
+					'title': unicode(result.find(class_='title').a.contents[0]),
 				})
 		return results
+

@@ -4,7 +4,7 @@ from gumtree import Gumtree
 
 class TestGumtree(unittest.TestCase):
 	def setUp(self):
-		self.gumtree = Gumtree()
+		self.gumtree = Gumtree(app=None)
 
 	def test_search(self):
 		# Load the mock search result page.
@@ -13,6 +13,11 @@ class TestGumtree(unittest.TestCase):
 			return contents
 		self.gumtree.get_page_contents = get_page_contents
 		results = self.gumtree.search('hello')
-		for result in results:
-			print(result['description'])
+
+	@unittest.skip('temp')
+	def test_get_categories_from_website(self):
+		def get_page_contents(url):
+			contents = open('notify/gumtree/test_pages/home_page.html')
+		#self.gumtree.get_page_contents = get_page_contents
+		categories = self.gumtree.get_categories_from_website()
 		self.fail()
