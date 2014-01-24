@@ -1,0 +1,16 @@
+<form>
+	<label> Search Terms </label>
+	<input type="text" ng-model="input.query"/>
+
+	<label> Select Category </label>
+	<select ng-model="input.category" ng-options="category for category in categories"></select>
+	<label> Email Address </label>
+	<input type="text" ng-model="input.email_address"/>
+	<button ng-click="submit()">Search</button>
+	<button ng-click="submit_email()">Send Email</button>
+</form>
+
+<div ng-repeat="result in results">
+	<h3>{{result.title}}</h3>
+	{{result.description}}
+</div>
