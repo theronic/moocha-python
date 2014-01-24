@@ -24,36 +24,16 @@ controllers.controller('HomePageCtrl', [
     };
     $http({
       method: 'GET',
-      url: '/api/get_categories'
+      url: '/api/search/categories/'
     }).success(function(data) {
-      var cat;
-      $scope.categories = (function() {
-        var _results;
-        _results = [];
-        for (cat in data.categories) {
-          _results.push(cat);
-        }
-        return _results;
-      })();
-      return console.log($scope.categories);
+      $scope.categories = data.categories;
+      return $scope.input.category = data.categories[0];
     });
-    $scope.submit = function() {
+    return $scope.search = function() {
       $http.get('/api/search', {
         params: {
           'query': $scope.input.query,
           'category': $scope.input.category
-        }
-      }).success(function(data) {
-        return $scope.results = data.results;
-      });
-      return console.log($scope.input);
-    };
-    return $scope.submit_email = function() {
-      $http.get('/api/send_search_results', {
-        params: {
-          'query': $scope.input.query,
-          'category': $scope.input.category,
-          'email_address': $scope.input.email_address
         }
       }).success(function(data) {
         return $scope.results = data.results;

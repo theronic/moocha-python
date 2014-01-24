@@ -2,10 +2,10 @@ from bs4 import BeautifulSoup
 import mechanize
 from urllib import urlencode
 from categories import categories
+from advertisement import Advertisement
 
 class Gumtree(object):
-	def __init__(self, app):
-		self.app = app
+	def __init__(self):
 		self.home_page_url = 'http://www.gumtree.co.za'
 		self.search_url = 'http://www.gumtree.co.za/search.html'
 		self.categories = categories
@@ -31,6 +31,33 @@ class Gumtree(object):
 		browser.open(url)
 		return browser.response().read()
 
+	def parse_search_results_page(self, soup):
+		body = soup.body
+		viewport = body.find(class_='viewport')
+		containment = body.find(class_='containment')
+		page = body.find(class_='page')
+		content = body.find(class_='content')
+		section = content.section
+		wrap = section.find(class_='wrap')
+		results_list_view = wrap.find(class_='results')
+		if results_list_view is None:
+			return []
+		results = list()
+		# Listings without pictures.
+		for result in results_list_view.find_all('li', class_='result'):
+			results.append(Advertisement(
+				title=unicode(result.find(class_='title').a.contents[0]),
+				description=unicode(result.find(class_='description').contents[0]),
+			))
+		# Listings with pictures.
+		for result in results_list_view.find_all('li', class_='result pictures'):
+			results.append(Advertisement(
+					title=unicode(result.find(class_='title').a.contents[0]),
+					description=unicode(result.find(class_='description').contents[0]),
+			))
+		return results
+
+
 	def search(self, terms, category='All categories'):
 		# Build the search url, combining search terms and categories.
 		url = '?'.join([self.search_url, urlencode({
@@ -41,26 +68,5 @@ class Gumtree(object):
 		contents = self.get_page_contents(url)
 		# Parse gumtree's response to the mechanize browser.
 		soup = BeautifulSoup(contents)
-		body = soup.body
-		viewport = body.find(class_='viewport')
-		containment = body.find(class_='containment')
-		page = body.find(class_='page')
-		content = body.find(class_='content')
-		section = content.section
-		wrap = section.find(class_='wrap')
-		results_list_view = wrap.find(class_='results')
-		results = list()
-		# Listings without pictures.
-		for result in results_list_view.find_all('li', class_='result'):
-			results.append({
-					'description': unicode(result.find(class_='description').contents[0]),
-					'title': unicode(result.find(class_='title').a.contents[0]),
-				})
-		# Listings with pictures.
-		for result in results_list_view.find_all('li', class_='result pictures'):
-			results.append({
-					'description': unicode(result.find(class_='description').contents[0]),
-					'title': unicode(result.find(class_='title').a.contents[0]),
-				})
-		return results
-
+		# Get Advertisement objects from the soup.
+		return self.parse_search_results_page(soup)

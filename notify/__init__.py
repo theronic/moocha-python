@@ -1,19 +1,31 @@
 from flask import Flask, redirect
-from gumtree import Gumtree
+from flask.ext.sqlalchemy import SQLAlchemy
+import logging
+import config
 from emailer import Emailer
+from searcher import Searcher
+logger = logging.getLogger('')
+logger.setLevel(logging.DEBUG)
+console_handler = logging.StreamHandler()
+#formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+#console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
 
-app = Flask(__name__, static_url_path='', static_folder='ui')
+db = SQLAlchemy()
 
-app.config.from_pyfile('config.py')
+def create_app(db_uri='sqlite://'):
+	app = Flask(__name__, static_folder='ui', static_url_path='')
+	app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+	db.init_app(app)
+	# Register redirect homepage.
+	@app.route('/')
+	def redirect_homepage():
+		return redirect('/index.html')
+	# Register api routes.
+	import api
+	app.register_blueprint(api.blueprint, url_prefix='/api')
+	return app
 
-gt = Gumtree(app)
+emailer_instance = Emailer(config)
 
-emailer = Emailer(app)
-
-import api
-app.register_blueprint(api.blueprint, url_prefix='/api')
-
-# Redirect naked request to index.html
-@app.route('/')
-def redirect_to_index():
-	return redirect('/index.html')
+searcher_instance = Searcher()

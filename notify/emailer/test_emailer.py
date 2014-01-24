@@ -1,5 +1,4 @@
 import unittest
-from emailer import Emailer
 from notify import config
 from jinja2 import Template
 

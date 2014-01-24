@@ -4,7 +4,7 @@ from gumtree import Gumtree
 
 class TestGumtree(unittest.TestCase):
 	def setUp(self):
-		self.gumtree = Gumtree(app=None)
+		self.gumtree = Gumtree()
 
 	def test_search(self):
 		# Load the mock search result page.
