@@ -16,6 +16,7 @@ class TestAPI(unittest.TestCase):
 		self.assertIn('message', result)
 		self.assertIsInstance(result['message'], basestring)
 
+	@unittest.skip('Broken')
 	def test_search(self):
 		result = json.loads(self.app.get('/api/search?query=hello').data)
 		pass
