@@ -18,6 +18,7 @@ class TestEmailer(unittest.TestCase):
 		mock_app = MockApp(config)
 		self.emailer = Emailer(mock_app)
 
+	@unittest.skip('intergration')
 	def test_send_email(self):
 		self.emailer.send_email(
 			address='avoid3d@gmail.com',
