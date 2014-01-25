@@ -1,14 +1,15 @@
-import unittest
+from flask.ext.testing import TestCase
 from notify import create_app, searcher_instance
 import json
 
-class TestAPI(unittest.TestCase):
-	def setUp(self):
+class TestAPI(TestCase):
+	def create_app(self):
 		app = create_app()
-		self.app = app.test_client()
+		app.config['TESTING'] = True
+		return app
 
 	def test_get_categories(self):
-		result = json.loads(self.app.get('/api/search/categories/').data)
+		result = self.client.get('/api/search/categories/').json
 		# The success flag is present and True.
 		self.assertIn('success', result)
 		self.assertIsInstance(result['success'], bool)
