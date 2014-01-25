@@ -1,6 +1,9 @@
 import unittest
-from notify import create_app, gumtree_instance
+from notify import create_app 
+from notify.gumtree import Gumtree
 import json
+
+gumtree_instance = Gumtree()
 
 class TestAPI(unittest.TestCase):
 	def setUp(self):
