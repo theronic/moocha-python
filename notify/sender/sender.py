@@ -24,7 +24,7 @@ class Sender(object):
 		return email_rules, number_of_email_rules
 		
 	def send_emails(self):
-		timedelta = datetime.timedelta(seconds=10)
+		timedelta = datetime.timedelta(days=1)
 		logger.info('Sending Emails.')
 		logger.debug('Getting email rules.')
 		email_rules, count = self.get_email_rules(timedelta)
@@ -39,23 +39,22 @@ class Sender(object):
 		# Get a list of new advertisements since the last email.
 		new_results = list()
 		for result in search_results:
-			matching_ad = (self.db.session.query(Advertisement)
-				.filter(and_(Advertisement.title == result.title, Advertisement.description == result.description))
-				.first())
-			if not matching_ad:
+			if result not in email_rule.advertisements:
 				new_results.append(result)
-				self.db.session.add(result)
-		# Send the email.
-		self.emailer.send_email(
-			address=email_rule.email_address,
-			subject='New Deals',
-			template_path='results.html',
-			values={
-				'results': new_results,
-			},
-		)
-		# Set the last_sent date to now.
-		email_rule.last_sent = now
+				email_rule.advertisements.append(result)
 		self.db.session.add(email_rule)
+		if new_results:
+			# Send the email.
+			self.emailer.send_email(
+				address=email_rule.email_address,
+				subject='New Deals',
+				template_path='results.html',
+				values={
+					'results': new_results,
+				},
+			)
+			# Set the last_sent date to now.
+			email_rule.last_sent = now
+			self.db.session.add(email_rule)
 		self.db.session.commit()
-		
+			

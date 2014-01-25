@@ -30,3 +30,4 @@ def get_categories():
 		message="Successfully retrieved categories.",
 		categories=searcher_instance.get_categories(),
 		)
+

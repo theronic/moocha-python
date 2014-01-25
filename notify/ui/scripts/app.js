@@ -8,6 +8,15 @@ notify.config([
     return $routeProvider.when('/', {
       templateUrl: 'partials/index.html',
       controller: 'HomePageCtrl'
+    }).when('/admin', {
+      templateUrl: 'partials/admin/index.html',
+      controller: 'AdminCtrl'
+    }).when('/admin/sent-emails/', {
+      templateUrl: 'partials/admin/sent-emails/list.html',
+      controller: 'AdminCtrl'
+    }).when('/admin/advertisements/', {
+      templateUrl: 'partials/admin/advertisements/list.html',
+      controller: 'AdvertisementCtrl'
     }).otherwise({
       redirectTo: '/'
     });
@@ -29,7 +38,7 @@ controllers.controller('HomePageCtrl', [
       $scope.categories = data.categories;
       return $scope.input.category = data.categories[0];
     });
-    return $scope.search = function() {
+    $scope.search = function() {
       $http.get('/api/search', {
         params: {
           'query': $scope.input.query,
@@ -40,5 +49,47 @@ controllers.controller('HomePageCtrl', [
       });
       return console.log($scope.input);
     };
+    return $scope.create_email_rule = function() {
+      return $http.post('/api/email_rules/', $scope.input).success(function(data) {
+        return console.log(data);
+      });
+    };
+  }
+]);
+
+controllers.controller('AdminCtrl', [
+  '$scope', '$http', function($scope, $http) {
+    console.log('Welcome to the admin interface.');
+    $http({
+      method: 'GET',
+      url: '/api/advertisements/'
+    }).success(function(data) {
+      return $scope.advertisement_count = data.meta.count;
+    });
+    $http({
+      method: 'GET',
+      url: '/api/email_rules/'
+    }).success(function(data) {
+      return $scope.email_rule_count = data.meta.count;
+    });
+    return $http({
+      method: 'GET',
+      url: '/api/sent_emails/'
+    }).success(function(data) {
+      return $scope.sent_email_count = data.meta.count;
+    });
+  }
+]);
+
+controllers.controller('AdvertisementCtrl', [
+  '$scope', '$http', function($scope, $http) {
+    return $http({
+      method: 'GET',
+      url: '/api/advertisements/'
+    }).success(function(data) {
+      $scope.advertisements = data.result.advertisements;
+      $scope.advertisement_count = data.meta.count;
+      return console.log(data);
+    });
   }
 ]);

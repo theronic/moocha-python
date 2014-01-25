@@ -1,7 +1,9 @@
 from notify import db
+import email_rules
 
 
 class Advertisement(db.Model):
+	__tablename__ = 'advertisements'
 	id = db.Column(db.Integer, primary_key=True)
 
 	title = db.Column(db.String(256))
