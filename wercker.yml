@@ -18,4 +18,4 @@ build:
     - script:
         name: run tests
         code: |
-            nosetests
+            python manage.py test
