@@ -11,7 +11,7 @@ build:
     - script:
         name: pip install 
         code: |
-            pip-install --allow-external twill
+            pip install -r requirements.txt --allow-external twill
 
     # A custom script step, name value is used in the UI
     # and the code value contains the command that get executed
