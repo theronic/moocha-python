@@ -1,1 +1,2 @@
 from email_rules import EmailRule
+from advertisement import Advertisement

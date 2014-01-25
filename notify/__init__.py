@@ -2,8 +2,6 @@ from flask import Flask, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 import logging
 import config
-from emailer import Emailer
-from searcher import Searcher
 logger = logging.getLogger('')
 logger.setLevel(logging.DEBUG)
 console_handler = logging.StreamHandler()
@@ -26,6 +24,8 @@ def create_app(db_uri='sqlite://'):
 	app.register_blueprint(api.blueprint, url_prefix='/api')
 	return app
 
-emailer_instance = Emailer(config)
-
+from searcher import Searcher
 searcher_instance = Searcher()
+
+from sender import Sender
+sender_instance = Sender(db, searcher_instance)

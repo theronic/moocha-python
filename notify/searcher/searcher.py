@@ -1,7 +1,7 @@
 from categories import categories
 import notify
 from notify.gumtree import Gumtree
-from advertisement import Advertisement
+from notify.models import Advertisement
 
 
 class Searcher(object):

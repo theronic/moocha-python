@@ -40,3 +40,5 @@ nosetests.xml
 
 # Python virtualenv.
 venv
+
+*.db
