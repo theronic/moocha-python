@@ -8,18 +8,10 @@ build:
         name: setup virtual environment
 
     # A step that executes `pip install` command.
-<<<<<<< HEAD
     - script:
         name: pip install 
         code: |
             pip-install --allow-external twill
-=======
-    -script:
-        name: pip-install
-        code: |
-            pip-install --allow-external twill
-
->>>>>>> fd454afa93906ebf3f1b7aac332b8c240e1c85ab
 
     # A custom script step, name value is used in the UI
     # and the code value contains the command that get executed
