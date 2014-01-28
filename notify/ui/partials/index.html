@@ -1,20 +1,30 @@
-<h3> Search for something you want to watch for, and we'll email you when matching advertisements are posted. </h3>
-<form>
-	<label> Search Terms </label>
-	<input type="text" ng-model="input.query" placeholder="Search notify" autofocus/>
 
-	<label> Select Category </label>
-	<select ng-model="input.category" ng-options="category for category in categories"></select>
-	<button ng-click="search()">Search</button>
-</form>
+        <div class="content-header">
+            <h1>
+                <a id="menu-toggle" href="#" class="btn btn-default"><i class="icon-reorder"></i></a>
+                Notify Price Comparison
+            </h1>
+        </div>
+        <!-- Keep all page content within the page-content inset div! -->
+        <div class="page-content inset">
 
-<form>
-	<label> Email Address </label>
-	<input type="text" ng-model="input.email_address" placeholder="name@example.com"/>
-	<button ng-click="create_email_rule()">Email me results like these.</button>
-</form>
+		<form>
+			
+			<label> Search Terms </label>
+			<input type="text" ng-model="input.query" placeholder="Search notify" autofocus/>
 
-<div ng-repeat="result in results">
-	<h3>{{result.title}} - {{result.source}}</h3>
-	{{result.description}}
-</div>
+			<label> Select Category </label>
+			<select ng-model="input.category" ng-options="category for category in categories"></select>
+			<button ng-click="search()">Search</button>
+		</form>
+
+		<form>
+			<label> Email Address </label>
+			<input type="text" ng-model="input.email_address" placeholder="name@example.com"/>
+			<button ng-click="create_email_rule()">Email me results like these.</button>
+		</form>
+			<div ng-repeat="result in results">
+				<h3>{{result.title}} - {{result.source}}</h3>
+				{{result.description}}
+			</div>
+        </div>

@@ -1,0 +1,16 @@
+Dear {{email_rule.username}}
+
+We have noticed that new postings match your search!
+
+{% for new_ad in new_ads %}
+	<h3>
+		<a href='exapmle.com'>
+			{{new_id.title}}
+		</a>
+	</h3>
+	<b>Description:</b> {{new_ad.description}}
+{% endfor %}
+
+<a href='example.com'>Unsubscribe from this filter.</a>
+<a href='example.com'>Unsubscribe from all filters.</a>
+<a href='example.com'>Manage your filters.</a>

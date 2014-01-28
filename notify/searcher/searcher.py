@@ -1,5 +1,5 @@
 from categories import categories
-import notify
+from notify import db
 from notify.gumtree import Gumtree
 from notify.models import Advertisement
 

@@ -10,6 +10,7 @@ notifications = db.Table('notifications', db.Model.metadata,
 class EmailRule(db.Model):
 	__tablename__ = 'email_rules'
 	id = db.Column(db.Integer, primary_key=True)
+
 	# The email address to send new offers to.
 	email_address = db.Column(db.String(256), unique=False, nullable=False)
 
@@ -17,7 +18,7 @@ class EmailRule(db.Model):
 
 	category = db.Column(db.String(256), unique=False, nullable=False)
 
-	last_sent = db.Column(db.DateTime, unique=False, nullable=True)
+	last_sent_on = db.Column(db.DateTime, unique=False, nullable=True)
 
 	advertisements = db.relationship('Advertisement', secondary=notifications, backref='email_rules')
 

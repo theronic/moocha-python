@@ -24,7 +24,6 @@ class EmailRuleForm(Form):
 	category = TextField('category') 
 	email_address = TextField('email_address')
 
-
 @blueprint.route('/email_rules/', methods=['POST'])
 def create_email_rule():
 	form = EmailRuleForm(**request.json)

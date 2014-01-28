@@ -11,7 +11,7 @@ notify.config([
     }).when('/admin', {
       templateUrl: 'partials/admin/index.html',
       controller: 'AdminCtrl'
-    }).when('/admin/sent-emails/', {
+    }).when('/admin/sent-emails/:id', {
       templateUrl: 'partials/admin/sent-emails/list.html',
       controller: 'AdminCtrl'
     }).when('/admin/advertisements/', {

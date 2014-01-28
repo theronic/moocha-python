@@ -30,7 +30,7 @@ def send_emails():
 
 @manager.command
 def test():
-	nose.main(argv=['notify'])
+	nose.main(argv=['notify', '--failed'])
 
 def main():
 	manager.run()

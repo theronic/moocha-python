@@ -7,7 +7,7 @@ notify.config(['$routeProvider', ($routeProvider) ->
 	}).when('/admin', {
 		templateUrl: 'partials/admin/index.html',
 		controller: 'AdminCtrl',
-	}).when('/admin/sent-emails/', {
+	}).when('/admin/sent-emails/:id', {
 		templateUrl: 'partials/admin/sent-emails/list.html',
 		controller: 'AdminCtrl',
 	}).when('/admin/advertisements/', {
@@ -30,6 +30,7 @@ controllers.controller('HomePageCtrl', ['$scope', '$http', ($scope, $http) ->
 		$scope.categories = data.categories
 		$scope.input.category = data.categories[0]
 	)
+
 	$scope.search = ->
 		# Fetch the search results.
 		$http.get('/api/search', {
