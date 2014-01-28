@@ -2,14 +2,14 @@
 	"folders":
 	[
 		{
-			"path": "/home/avoid3d/notify-python"
+			"path": "/home/avoid3d/moocha-python"
 		}
 	],
 	"build_systems":
         [
             {
             "name": "Nosetests",
-            "working_dir": "/home/avoid3d/notify-python",
+            "working_dir": "/home/avoid3d/moocha-python",
             "cmd": ["venv/bin/python", "manage.py", "test"]
             }
         ]
