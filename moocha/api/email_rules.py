@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
 from wtforms import Form, TextField, validators
-from notify import searcher_instance, db
-from notify.api import blueprint
-from notify.models import EmailRule
+from moocha import searcher_instance, db
+from moocha.api import blueprint
+from moocha.models import EmailRule
 
 @blueprint.route('/email_rules/', methods=['GET'])
 def get_email_rules():
@@ -21,8 +21,8 @@ def get_email_rules():
 
 class EmailRuleForm(Form):
 	query = TextField('query', [validators.Length(min=1, max=256)])
-	category = TextField('category') 
-	email_address = TextField('email_address')
+	category = TextField('category', [validators.AnyOf(searcher_instance.get_categories())]) 
+	email_address = TextField('email_address', [validators.Email()])
 
 @blueprint.route('/email_rules/', methods=['POST'])
 def create_email_rule():
@@ -33,6 +33,16 @@ def create_email_rule():
 			message="Form did not pass validation.",
 			errors=form.errors,
 		), 400
+	duplicate_email_rule = (db.session.query(EmailRule)
+		.filter((EmailRule.email_address == form.email_address.data)
+			& (EmailRule.query == form.query.data)
+			& (EmailRule.category == form.category.data)
+		).first())
+	if duplicate_email_rule:
+		return jsonify(
+			success=False,
+			message="Exactly the same email rule already exists.",
+		), 409
 	db.session.add(EmailRule(
 		query=form.query.data,
 		email_address=form.email_address.data,

@@ -45,3 +45,6 @@ venv
 
 # Nose test id cache.
 *.noseids
+
+# Developers local config.
+*.dev_config

@@ -1,13 +1,13 @@
 import unittest
 from flask.ext.testing import TestCase
-from notify import create_app 
-from notify.gumtree import Gumtree
+from moocha import create_app 
+from moocha.gumtree import Gumtree
 import json
 
 gumtree_instance = Gumtree()
 
 class TestStatus(TestCase):
-	def create_app(self):
+	def create_app(self, testing=True):
 		app = create_app()
 		return app
 

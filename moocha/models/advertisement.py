@@ -1,4 +1,4 @@
-from notify import db
+from moocha import db
 import email_rules
 
 

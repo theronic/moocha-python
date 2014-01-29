@@ -1,0 +1,4 @@
+EMAILER_SOURCE_ADDRESS = 'avoid3d@gmail.com'
+AWS_ACCESS_KEY_ID = ''
+AWS_SECRET_KEY = ''
+SQLALCHEMY_DATABASE_URI='sqlite:///dev_db.db'

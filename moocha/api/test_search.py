@@ -1,5 +1,5 @@
 from flask.ext.testing import TestCase
-from notify import create_app, searcher_instance
+from moocha import create_app, searcher_instance
 import json
 
 class TestAPI(TestCase):

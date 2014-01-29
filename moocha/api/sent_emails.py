@@ -1,7 +1,7 @@
 from flask import jsonify
-from notify import db
-from notify.api import blueprint
-from notify.models import SentEmail
+from moocha import db
+from moocha.api import blueprint
+from moocha.models import SentEmail
 
 
 @blueprint.route('/sent_emails/')

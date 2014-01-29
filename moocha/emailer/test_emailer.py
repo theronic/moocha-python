@@ -1,5 +1,5 @@
 import unittest
-from notify import config
+from moocha import config
 from jinja2 import Template
 
 

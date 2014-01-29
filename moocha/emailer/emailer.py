@@ -10,10 +10,10 @@ class Emailer(object):
 		self.config = config
 		self.conn = boto.ses.connect_to_region(
 			'us-east-1',
-			aws_access_key_id=self.config.AWS_ACCESS_KEY_ID,
-			aws_secret_access_key=self.config.AWS_SECRET_KEY,
+			aws_access_key_id=self.config.get('AWS_ACCESS_KEY_ID'),
+			aws_secret_access_key=self.config.get('AWS_SECRET_KEY'),
 			)
-		self.env = Environment(loader=PackageLoader('notify.emailer', 'templates'))
+		self.env = Environment(loader=PackageLoader('moocha.emailer', 'templates'))
 
 
 	def send_email(self, address, subject, template_path, values, source_address=None):

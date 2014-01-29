@@ -1,4 +1,4 @@
-from notify import db
+from moocha import db
 
 
 notifications = db.Table('notifications', db.Model.metadata,
@@ -32,6 +32,7 @@ class EmailRule(db.Model):
 
 	def to_dict(self):
 		return {
+			'category': self.category,
 			'email_address': self.email_address,
 			'query': self.query,
 		}

@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
 from wtforms import Form, TextField, validators
-from notify import searcher_instance, db
-from notify.api import blueprint
-from notify.models import Advertisement
+from moocha import searcher_instance, db
+from moocha.api import blueprint
+from moocha.models import Advertisement
 
 @blueprint.route('/advertisements/', methods=['GET'])
 def get_advertisements():

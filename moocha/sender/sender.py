@@ -1,9 +1,9 @@
-from notify.models import EmailRule, Advertisement
 from sqlalchemy import or_, and_
 import datetime
 import logging
-from notify import config
-from notify.emailer import Emailer
+from moocha import config
+from moocha.emailer import Emailer
+from moocha.models import EmailRule, Advertisement
 logger = logging.getLogger(__name__)
 
 

@@ -1,1 +1,1 @@
-web: newrelic-admin run-program gunicorn notify:app
+web: newrelic-admin run-program gunicorn moocha:app

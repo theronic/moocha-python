@@ -1,4 +1,4 @@
-from notify import db
+from moocha import db
 
 
 class SentEmail(db.Model):

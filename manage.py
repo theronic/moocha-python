@@ -1,10 +1,10 @@
 from flask_script import Manager, Shell
-from notify import create_app, sender_instance, db
-from notify.gumtree import Gumtree
-from notify import models
+from moocha import create_app, sender_instance, db
+from moocha.gumtree import Gumtree
+from moocha import models
 import nose
 
-app = create_app('sqlite:///hello.db')
+app = create_app()
 
 gumtree_instance = Gumtree
 
@@ -30,7 +30,9 @@ def send_emails():
 
 @manager.command
 def test():
-	nose.main(argv=['notify', '--failed'])
+	nose.main(argv=['moocha', '--failed'])
+
+#TODO: Implement a dev command which runs create_all and then runs the server.
 
 def main():
 	manager.run()

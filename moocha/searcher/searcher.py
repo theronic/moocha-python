@@ -1,7 +1,7 @@
 from categories import categories
-from notify import db
-from notify.gumtree import Gumtree
-from notify.models import Advertisement
+from moocha import db
+from moocha.gumtree import Gumtree
+from moocha.models import Advertisement
 
 
 class Searcher(object):

@@ -1,7 +1,7 @@
 import unittest
 from sender import Sender
-from notify import create_app, db
-from notify.models import EmailRule, Advertisement
+from moocha import create_app, db
+from moocha.models import EmailRule, Advertisement
 import datetime
 
 class TestSender(unittest.TestCase):

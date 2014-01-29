@@ -1,4 +1,4 @@
-notify-python
+moocha-python
 =============
 
 Classifieds notifications.

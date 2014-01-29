@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from wtforms import Form, TextField, validators
-from notify import searcher_instance 
-from notify.api import blueprint
+from moocha import searcher_instance 
+from moocha .api import blueprint
 
 class SearchForm(Form):
 	query = TextField('query', [validators.Length(min=1, max=256)])
