@@ -6,9 +6,6 @@ class Advertisement(db.Model):
 	__tablename__ = 'advertisements'
 	id = db.Column(db.Integer, primary_key=True)
 
-	# Uniqueness hash.
-	unique_hash = db.Column(db.String(256), unique=True, nullable=False)
-
 	title = db.Column(db.String(256))
 
 	description = db.Column(db.String(1024))
@@ -19,7 +16,6 @@ class Advertisement(db.Model):
 		self.title = title
 		self.description = description
 		self.source = source
-		self.unique_hash = hash(hash(title) + hash(description) + hash(source))
 
 	def __eq__(self, other):
 		for attr in ['title', 'description']:
