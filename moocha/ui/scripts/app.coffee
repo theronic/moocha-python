@@ -26,9 +26,9 @@ controllers.controller('HomePageCtrl', ['$scope', '$http', ($scope, $http) ->
 		query: '',
 	}
 	# Fetch the categories.
-	$http({method: 'GET', url:'/api/search/categories/'}).success((data) ->
-		$scope.categories = data.categories
-		$scope.input.category = data.categories[0]
+	$http({method: 'GET', url:'/api/categories/'}).success((data) ->
+		$scope.categories = data.result.categories
+		$scope.input.category = data.result.categories[0]
 	)
 
 	$scope.search = ->

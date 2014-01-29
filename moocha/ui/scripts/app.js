@@ -33,10 +33,10 @@ controllers.controller('HomePageCtrl', [
     };
     $http({
       method: 'GET',
-      url: '/api/search/categories/'
+      url: '/api/categories/'
     }).success(function(data) {
-      $scope.categories = data.categories;
-      return $scope.input.category = data.categories[0];
+      $scope.categories = data.result.categories;
+      return $scope.input.category = data.result.categories[0];
     });
     $scope.search = function() {
       $http.get('/api/search', {
