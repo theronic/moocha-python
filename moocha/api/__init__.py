@@ -14,3 +14,4 @@ import search
 import advertisements
 import email_rules
 import sent_emails
+import categories
