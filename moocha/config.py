@@ -22,7 +22,7 @@ if environment == 'DEV':
 elif environment == 'HEROKU':
 	import os
 	config.from_dict(os.environ)
-elif environment == 'TESTING':
+elif environment == 'TESTING' or environment == 'CI':
 	import test_config
 	config.from_module(test_config)
 else:
