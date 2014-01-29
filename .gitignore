@@ -47,4 +47,4 @@ venv
 *.noseids
 
 # Developers local config.
-*.dev_config
+dev_config.py
