@@ -58,7 +58,8 @@ class TestSender(unittest.TestCase):
 		mock_new_ads = [
 			Advertisement(title='foo', description='bar', source='foobar')
 		]
-		def mock_send_email(address, subject_template_path, body_template_path, template_args):
+		#TODO: Asserts with source address.
+		def mock_send_email(address, subject_template_path, body_template_path, source_address, template_args):
 			self.assertEqual(address, mock_address)
 			self.assertEqual(subject_template_path, 'new_matching_ads_update/subject.html')
 			self.assertEqual(body_template_path, 'new_matching_ads_update/body.html')

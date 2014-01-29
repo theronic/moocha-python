@@ -98,9 +98,10 @@ class Sender(object):
 			address=email_rule.email_address,
 			subject_template_path='new_matching_ads_update/subject.html',
 			body_template_path='new_matching_ads_update/body.html',
+			source_address=config.get('EMAILER_SOURCE_ADDRESS'),
 			template_args={
-			'new_ads': new_ads,
-			'email_rule': email_rule,
+				'new_ads': new_ads,
+				'email_rule': email_rule,
 			},
 		)
 		email_rule.last_sent_on = now
