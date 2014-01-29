@@ -26,7 +26,7 @@ def create_all():
 
 @manager.command
 def send_emails():
-	sender_instance.send_emails()
+	sender_instance.process_email_rules()
 
 @manager.command
 def test():
