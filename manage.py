@@ -32,6 +32,13 @@ def send_emails():
 def test():
 	nose.main(argv=['moocha', '--failed'])
 
+@manager.command
+def integration_test():
+	from moocha import config
+	config.values['RUN_INTEGRATION_TESTS'] = True
+	print('Running in DEV mode since integration requires live stuffs.')
+	nose.main(argv=['moocha', '--failed'])
+
 #TODO: Implement a dev command which runs create_all and then runs the server.
 
 def main():

@@ -9,6 +9,7 @@ class MoochaConfig(Configuration):
 		'AWS_ACCESS_KEY_ID',
 		'AWS_SECRET_KEY',
 		'SQLALCHEMY_DATABASE_URI',
+		'RUN_INTEGRATION_TESTS',
 	]
 
 config = MoochaConfig()
