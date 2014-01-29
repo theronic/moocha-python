@@ -32,7 +32,7 @@ class TestEmailRules(TestCase):
 		return result['result'][resource_name], count
 
 
-	def create_app(self, testing=True):
+	def create_app(self):
 		app = create_app()
 		return app
 
