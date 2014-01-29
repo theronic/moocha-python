@@ -1,23 +1,74 @@
+from mock import Mock
+import unittest
 from flask.ext.testing import TestCase
-from moocha import create_app, searcher_instance
+from moocha import create_app, db
+from moocha.gumtree import Gumtree
+from moocha.api import email_rules
+from moocha.models import Advertisement
+from moocha.api import search
 import json
 
-class TestAPI(TestCase):
+class TestSearch(TestCase):
+	def setUp(self):
+		db.create_all()
+
+	def tearDown(self):
+		db.session.remove()
+		db.drop_all()
+
+	def get_list(self, result, resource_name):
+		self.assertIn('success', result)
+		self.assertTrue(result['success'])
+		self.assertIn('meta', result)
+		self.assertIn('count', result['meta'])
+		count = result['meta']['count']
+		self.assertIn('result', result)
+		self.assertIn(resource_name, result['result'])
+		return result['result'][resource_name], count
+
 	def create_app(self):
 		app = create_app()
-		app.config['TESTING'] = True
 		return app
 
-	def test_get_categories(self):
-		result = self.client.get('/api/search/categories/').json
-		# The success flag is present and True.
-		self.assertIn('success', result)
-		self.assertIsInstance(result['success'], bool)
-		self.assertTrue(result['success'])
-		# The message is present and is a string.
-		self.assertIn('message', result)
-		self.assertIsInstance(result['message'], basestring)
-		# The categories are present and correct.
-		self.assertIn('categories', result)
-		self.assertIsInstance(result['categories'], list)
-		self.assertEqual(result['categories'], searcher_instance.get_categories())
+	def test_search_validates_query(self):
+		search.searcher_instance.search = Mock(return_value=list())
+		response = self.client.get('/api/search?query=hello&category=Computers')
+		self.assertEqual(response.status_code, 200)
+		def check_search_returns_validation_error(query, should_fail=False):
+			response = self.client.get('/api/search?query=%s&category=Computers' % query)
+			self.assertEqual(response.status_code, 400)
+			result = response.json
+			self.assertFalse(result['success'])
+		for query in ['', '*' * (256 + 1)]:
+			check_search_returns_validation_error(query)
+
+	def test_search_validates_category(self):
+		search.searcher_instance.search = Mock(return_value=list())
+		response = self.client.get('/api/search?query=hello&category=Computers')
+		self.assertEqual(response.status_code, 200)
+		def check_search_returns_validation_error(query, should_fail=False):
+			response = self.client.get('/api/search?query=foo&category=%s' % query)
+			self.assertEqual(response.status_code, 400)
+			result = response.json
+			self.assertFalse(result['success'])
+		for query in ['', 'hello']:
+			check_search_returns_validation_error(query)
+
+	def test_search_calls_searcher(self):
+		search.searcher_instance.search = Mock(return_value=list())
+		query = 'foo'
+		cat = 'Computers'
+		self.client.get('/api/search?query=%s&category=%s' % (query, cat))
+		search.searcher_instance.search.assert_called_with(
+			query=query,
+			category=cat,
+		)
+
+	def test_search_returns_searchers_results(self):
+		ad = Advertisement('foo', 'bar', 'baz')
+		search.searcher_instance.search = Mock(return_value=[ad])
+		response = self.client.get('/api/search?query=foo&category=Computers')
+		result = response.json
+		ads, count = self.get_list(result, 'advertisements')
+		self.assertEqual(count, 1)
+		self.assertEqual(ads[0], ad.to_dict())

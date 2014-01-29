@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify, request
 from wtforms import Form, TextField, validators
 from moocha import searcher_instance 
-from moocha .api import blueprint
+from moocha.api import blueprint
 
 class SearchForm(Form):
 	query = TextField('query', [validators.Length(min=1, max=256)])
-	category = TextField('category') 
+	category = TextField('category', [validators.AnyOf(searcher_instance.get_categories())]) 
 
 @blueprint.route('/search', methods=['GET'])
 def search():
@@ -16,18 +16,17 @@ def search():
 			message=form.errors,
 			), 400
 
-	search_results = searcher_instance.search(form.query.data, form.category.data)	
+	search_results = searcher_instance.search(
+		query=form.query.data,
+		category=form.category.data,
+	)	
 	return jsonify(
 		success=True,
-		message="Searched.",
-		results=[search_result.to_dict() for search_result in search_results],
+		message="Searchedlol.",
+		result={
+			'advertisements': [search_result.to_dict() for search_result in search_results],
+		},
+		meta={
+			'count': len(search_results)
+		}
 	)
-
-@blueprint.route('/search/categories/', methods=['GET'])
-def get_categories():
-	return jsonify(
-		success=True,
-		message="Successfully retrieved categories.",
-		categories=searcher_instance.get_categories(),
-		)
-
