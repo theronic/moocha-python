@@ -11,7 +11,7 @@ from config import config
 
 db = SQLAlchemy()
 
-def create_app():
+def create_app(*args, **kwagrs):
 	app = Flask(__name__, static_folder='ui', static_url_path='')
 	for key, value in config.values.items():
 		app.config[key] = value
@@ -31,4 +31,4 @@ searcher_instance = Searcher()
 from sender import Sender
 sender_instance = Sender(db, searcher_instance)
 
-app = create_app
+app = create_app()
