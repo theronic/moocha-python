@@ -15,17 +15,14 @@ class Emailer(object):
 			)
 		self.env = Environment(loader=PackageLoader('moocha.emailer', 'templates'))
 
-
-	def send_email(self, address, subject_template_path, body_template_path, template_args=dict(), source_address=None):
-		if source_address is None:
-			source_address = self.config.get('EMAILER_SOURCE_ADDRESS')
+	def send_email(self, address, subject_template_path, body_template_path, source_address, template_args=dict()):
 		body_template = self.env.get_template(body_template_path)
 		body = body_template.render(**template_args)
 		subject_template = self.env.get_template(subject_template_path)
 		subject = subject_template.render(**template_args)
 		self.conn.send_email(
-			source_address,
-			subject,
-			body,
-			[address]
+			source=source_address,
+			subject=subject,
+			body=body,
+			to_addresses=[address]
 		)
