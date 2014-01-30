@@ -5,6 +5,7 @@ from moocha import create_app, db
 from moocha.gumtree import Gumtree
 from moocha.api import email_rules
 from moocha.models import Advertisement
+from moocha.utils import fuzz
 import json
 
 class TestEmailRules(TestCase):
@@ -40,7 +41,7 @@ class TestEmailRules(TestCase):
 		self.assertEqual(ads, list())
 
 	def test_get_advertisement_works_with_ads(self):
-		ad = Advertisement('', '', '')
+		ad = Advertisement(fuzz(), fuzz(), fuzz())
 		db.session.add(ad)
 		db.session.commit()
 		response = self.client.get('/api/advertisements/')

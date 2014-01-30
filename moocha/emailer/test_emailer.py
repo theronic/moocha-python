@@ -4,6 +4,7 @@ from jinja2 import Template
 from emailer import Emailer
 from mock import Mock
 from moocha.models import EmailRule
+from moocha.utils import fuzz
 
 
 class TestEmailer(unittest.TestCase):
@@ -11,15 +12,15 @@ class TestEmailer(unittest.TestCase):
 		self.emailer = Emailer(config)
 
 	def test_emailer_uses_correct_templates(self):
-		mock_template = Template('.')
+		mock_template = Template(fuzz())
 		self.emailer.env.get_template = Mock(return_value=mock_template)
 		self.emailer.conn.send_email = Mock()
-		subject_template_path = 'foobar'
-		body_template_path = 'foobaz'
-		self.emailer.send_email('foo',
+		subject_template_path = fuzz()
+		body_template_path = fuzz()
+		self.emailer.send_email(fuzz(),
 			subject_template_path=subject_template_path,
 			body_template_path=body_template_path,
-			source_address='boh',
+			source_address=fuzz(),
 		)
 		self.emailer.env.get_template.assert_any_calls(subject_template_path)
 		self.emailer.env.get_template.assert_any_calls(body_template_path)
@@ -28,27 +29,27 @@ class TestEmailer(unittest.TestCase):
 		mock_template = Mock(wraps=Template('.'))
 		self.emailer.env.get_template = Mock(return_value=mock_template)
 		self.emailer.conn.send_email = Mock()
-		mock_template_args = {'some': 'values'}
-		self.emailer.send_email('foo',
-			subject_template_path='foobaz',
-			body_template_path='foobar',
-			source_address='boh',
+		mock_template_args = {fuzz(): fuzz()}
+		self.emailer.send_email(fuzz(),
+			subject_template_path=fuzz(),
+			body_template_path=fuzz(),
+			source_address=fuzz(),
 			template_args=mock_template_args,
 		)
 		mock_template.render.assert_called_with(**mock_template_args)
 
 	def test_emailer_calls_boto_send_mail_correctly(self):
-		mock_template = Template('.')
-		mock_template_value = 'foobars'
+		mock_template = Template(fuzz())
+		mock_template_value = fuzz() 
 		mock_template.render = Mock(return_value=mock_template_value)
 		self.emailer.env.get_template = Mock(return_value=mock_template)
 		self.emailer.conn.send_email = Mock()
-		mock_template_args = {'some': 'values'}
-		mock_address = 'foo@example.com'
-		mock_source_address = 'bar@example.com'
+		mock_template_args = {fuzz(): fuzz()}
+		mock_address = fuzz() + '@' + fuzz() + '.com'
+		mock_source_address = fuzz() + '@' + fuzz() + '.com'
 		self.emailer.send_email(mock_address,
-			subject_template_path='foobaz',
-			body_template_path='foobar',
+			subject_template_path=fuzz(),
+			body_template_path=fuzz(),
 			source_address=mock_source_address,
 			template_args=mock_template_args,
 		)
