@@ -1,4 +1,7 @@
+"""A map of gumtree categories to their gumtree catId.
+"""
 categories = {
+	u"All Categories": u"",
 	u"Health & Beauty jobs": u"9543",
 	u"Gardening & Landscaping CVs": u"9401",
 	u"Industrial Machinery": u"9221",

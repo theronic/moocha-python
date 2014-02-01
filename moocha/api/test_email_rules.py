@@ -1,3 +1,4 @@
+from flask import url_for
 from mock import Mock
 import unittest
 from flask.ext.testing import TestCase
@@ -12,8 +13,8 @@ class TestEmailRules(TestCase):
 		db.create_all()
 
 	def tearDown(self):
-		db.session.remove()
 		db.drop_all()
+		db.session.remove()
 
 	def json_post(self, url, data):
 		return self.client.post(url,
@@ -52,9 +53,9 @@ class TestEmailRules(TestCase):
 		mock_data = {
 			'email_address': 'foo@bar.com',
 			'query': 'search',
-			'category': 'Computers',
+			'category': 'All Categories.Property.Short Term',
 		}
-		result = self.json_post('/api/email_rules/', mock_data)
+		result = self.json_post(url_for('api.create_email_rule'), mock_data)
 		self.assertEqual(db.session.query(EmailRule).count(), 1)
 		email_rule = db.session.query(EmailRule).first()
 		self.assertIsNotNone(email_rule)
@@ -66,7 +67,7 @@ class TestEmailRules(TestCase):
 		mock_data = {
 			'email_address': 'foo@bar.com',
 			'query': 'search',
-			'category': 'Computers',
+			'category': 'All Categories.Property.Short Term',
 		}
 		self.json_post('/api/email_rules/', mock_data)
 		self.assertEqual(db.session.query(EmailRule).count(), 1)
@@ -77,7 +78,7 @@ class TestEmailRules(TestCase):
 		mock_data = {
 			'email_address': 'foo@bar.com',
 			'query': 'search',
-			'category': 'Computers',
+			'category': 'All Categories.Property.Short Term',
 		}
 		self.json_post('/api/email_rules/', mock_data)
 		second_response = self.json_post('/api/email_rules/', mock_data)
@@ -90,7 +91,7 @@ class TestEmailRules(TestCase):
 			mock_data = {
 				'email_address': email_address,
 				'query': 'search',
-				'category': 'Computers',
+				'category': 'All Categories.Property.Short Term',
 			}
 			response = self.json_post('/api/email_rules/', mock_data)
 			self.assertEqual(response.status_code, 400)

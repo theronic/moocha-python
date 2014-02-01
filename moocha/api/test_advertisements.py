@@ -26,7 +26,6 @@ class TestEmailRules(TestCase):
 		self.assertIn(resource_name, result['result'])
 		return result['result'][resource_name], count
 
-
 	def create_app(self):
 		app = create_app()
 		return app

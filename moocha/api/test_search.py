@@ -32,7 +32,7 @@ class TestSearch(TestCase):
 
 	def test_search_validates_query(self):
 		search.searcher_instance.search = Mock(return_value=list())
-		response = self.client.get('/api/search?query=hello&category=Computers')
+		response = self.client.get('/api/search?query=hello&category=All%20Categories.Property.Short%20Term')
 		self.assertEqual(response.status_code, 200)
 		def check_search_returns_validation_error(query, should_fail=False):
 			response = self.client.get('/api/search?query=%s&category=Computers' % query)
@@ -44,7 +44,7 @@ class TestSearch(TestCase):
 
 	def test_search_validates_category(self):
 		search.searcher_instance.search = Mock(return_value=list())
-		response = self.client.get('/api/search?query=hello&category=Computers')
+		response = self.client.get('/api/search?query=hello&category=All%20Categories.Property.Short%20Term')
 		self.assertEqual(response.status_code, 200)
 		def check_search_returns_validation_error(query, should_fail=False):
 			response = self.client.get('/api/search?query=foo&category=%s' % query)
@@ -57,17 +57,16 @@ class TestSearch(TestCase):
 	def test_search_calls_searcher(self):
 		search.searcher_instance.search = Mock(return_value=list())
 		query = 'foo'
-		cat = 'Computers'
-		self.client.get('/api/search?query=%s&category=%s' % (query, cat))
+		self.client.get('/api/search?query=%s&category=%s' % (query, 'All%20Categories.Property.Short%20Term'))
 		search.searcher_instance.search.assert_called_with(
 			query=query,
-			category=cat,
+			category = 'All Categories.Property.Short Term'
 		)
 
 	def test_search_returns_searchers_results(self):
 		ad = Advertisement('foo', 'bar', 'baz')
 		search.searcher_instance.search = Mock(return_value=[ad])
-		response = self.client.get('/api/search?query=foo&category=Computers')
+		response = self.client.get('/api/search?query=foo&category=All%20Categories.Property.Short%20Term')
 		result = response.json
 		ads, count = self.get_list(result, 'advertisements')
 		self.assertEqual(count, 1)
