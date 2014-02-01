@@ -28,26 +28,32 @@ controllers = angular.module('controllers', []);
 controllers.controller('HomePageCtrl', [
   '$scope', '$http', function($scope, $http) {
     $scope.input = {
-      category: '',
-      query: ''
+      category: 'All Categories',
+      query: '',
+      location: 'South Africa'
     };
     $http({
       method: 'GET',
       url: '/api/categories/'
     }).success(function(data) {
-      $scope.categories = data.result.categories;
-      return $scope.input.category = data.result.categories[0];
+      return $scope.categories = data.result.categories;
+    });
+    $http({
+      method: 'GET',
+      url: '/api/locations/'
+    }).success(function(data) {
+      return $scope.locations = data.result.locations;
     });
     $scope.search = function() {
-      $http.get('/api/search', {
+      console.log($scope.input);
+      return $http.get('/api/search', {
         params: {
           'query': $scope.input.query,
           'category': $scope.input.category
         }
       }).success(function(data) {
-        return $scope.results = data.results;
+        return $scope.results = data.result.advertisements;
       });
-      return console.log($scope.input);
     };
     return $scope.create_email_rule = function() {
       return $http.post('/api/email_rules/', $scope.input).success(function(data) {

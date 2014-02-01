@@ -22,25 +22,30 @@ controllers = angular.module('controllers', [])
 
 controllers.controller('HomePageCtrl', ['$scope', '$http', ($scope, $http) ->
 	$scope.input = {
-		category: '',
+		category: 'All Categories',
 		query: '',
+		location: 'South Africa',
 	}
 	# Fetch the categories.
 	$http({method: 'GET', url:'/api/categories/'}).success((data) ->
 		$scope.categories = data.result.categories
-		$scope.input.category = data.result.categories[0]
+	)
+	# Fetch the locations.
+	$http({method: 'GET', url:'/api/locations/'}).success((data) ->
+		$scope.locations = data.result.locations
 	)
 
+
 	$scope.search = ->
+		console.log($scope.input)
 		# Fetch the search results.
 		$http.get('/api/search', {
 			params: {
 				'query': $scope.input.query,
 				'category': $scope.input.category,
 			}}).success((data) ->
-				$scope.results = data.results
-			)
-		console.log($scope.input)
+				$scope.results = data.result.advertisements
+			)	
 
 	$scope.create_email_rule = ->
 		$http.post('/api/email_rules/', $scope.input).success (data) ->
