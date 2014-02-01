@@ -17,6 +17,9 @@ class Searcher(object):
 	def get_categories(self):
 		return list(categories)
 
+	def get_locations(self):
+		return list(locations)
+
 	def search(self, query, category):
 		"""Search on the different websites and colate the results.
 		"""

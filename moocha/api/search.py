@@ -10,6 +10,7 @@ class SearchForm(Form):
 @blueprint.route('/search', methods=['GET'])
 def search():
 	form = SearchForm(request.args)
+	print(form.category.data)
 	if not form.validate():
 		return jsonify(
 			success=False,
