@@ -1,6 +1,7 @@
+from flask import url_for
+from flask.ext.testing import TestCase
 from mock import Mock
 import unittest
-from flask.ext.testing import TestCase
 from moocha import create_app, db
 from moocha.gumtree import Gumtree
 from moocha.api import email_rules
@@ -32,10 +33,10 @@ class TestSearch(TestCase):
 
 	def test_search_validates_query(self):
 		search.searcher_instance.search = Mock(return_value=list())
-		response = self.client.get('/api/search?query=hello&category=All%20Categories.Property.Short%20Term')
+		response = self.client.get(url_for('api.search', query='hello', category='All Categories.Property.Short Term'))
 		self.assertEqual(response.status_code, 200)
 		def check_search_returns_validation_error(query, should_fail=False):
-			response = self.client.get('/api/search?query=%s&category=Computers' % query)
+			response = self.client.get(url_for('api.search', query=query, category='All Categories.Property.Short Term'))
 			self.assertEqual(response.status_code, 400)
 			result = response.json
 			self.assertFalse(result['success'])
@@ -44,10 +45,10 @@ class TestSearch(TestCase):
 
 	def test_search_validates_category(self):
 		search.searcher_instance.search = Mock(return_value=list())
-		response = self.client.get('/api/search?query=hello&category=All%20Categories.Property.Short%20Term')
+		response = self.client.get(url_for('api.search', query='hello', category='All Categories.Property.Short Term'))
 		self.assertEqual(response.status_code, 200)
 		def check_search_returns_validation_error(query, should_fail=False):
-			response = self.client.get('/api/search?query=foo&category=%s' % query)
+			response = self.client.get(url_for('api.search', query=query, category='foo'))
 			self.assertEqual(response.status_code, 400)
 			result = response.json
 			self.assertFalse(result['success'])
@@ -57,7 +58,7 @@ class TestSearch(TestCase):
 	def test_search_calls_searcher(self):
 		search.searcher_instance.search = Mock(return_value=list())
 		query = 'foo'
-		self.client.get('/api/search?query=%s&category=%s' % (query, 'All%20Categories.Property.Short%20Term'))
+		self.client.get(url_for('api.search', query=query, category='All Categories.Property.Short Term'))
 		search.searcher_instance.search.assert_called_with(
 			query=query,
 			category = 'All Categories.Property.Short Term'
@@ -66,7 +67,7 @@ class TestSearch(TestCase):
 	def test_search_returns_searchers_results(self):
 		ad = Advertisement('foo', 'bar', 'baz')
 		search.searcher_instance.search = Mock(return_value=[ad])
-		response = self.client.get('/api/search?query=foo&category=All%20Categories.Property.Short%20Term')
+		response = self.client.get(url_for('api.search', query='foo', category='All Categories.Property.Short Term'))
 		result = response.json
 		ads, count = self.get_list(result, 'advertisements')
 		self.assertEqual(count, 1)

@@ -1,78 +1,28 @@
+import os
+import json
 from bs4 import BeautifulSoup
-from moocha.utils.skip_integration_tests import integration_test
 import mechanize
 from urllib import urlencode
-from categories import categories
 from advertisement import Advertisement
 import logging
-import json
+from moocha.utils import load_json, dump_json
 logger = logging.getLogger(__name__)
-from categories import categories
-from locations import locations
-from searcher_gumtree_category_map import searcher_gumtree_category_map
-from searcher_gumtree_location_map import searcher_gumtree_location_map
 
 class Gumtree(object):
-	home_page_url = 'http://www.gumtree.co.za'
 	def __init__(self):
 		logger.debug('Creating Gumtree object.')
+		self.home_page_url = 'http://www.gumtree.co.za'
 		self.search_url = 'http://www.gumtree.co.za/search.html'
-		self.searcher_gumtree_category_map = searcher_gumtree_category_map
-		self.searcher_gumtree_location_map = searcher_gumtree_location_map
-		self.categories = categories
-		self.locations = locations
-
-	@staticmethod
-	def serialize_dict_to_python_module(dict_, module_path, variable_name):
-		with open(module_path, 'w') as f:
-			f.write('%s = {\n' % variable_name)
-			for key, value in dict_.items():
-				f.write('"%s":"%s",\n' % (key, value))
-			f.write('}\n')
-
-	@staticmethod
-	def BuildAndWriteSearcherBackendLocationMap(locations):
-		import os
-		path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-			'searcher_gumtree_location_map.py')
-		searcher_gumtree_location_map = {location: location.split('.')[-1] for location in locations}
-		Gumtree.serialize_dict_to_python_module(searcher_gumtree_location_map,
-			path,
-			'searcher_gumtree_location_map',
-		)
-
-	@staticmethod
-	def BuildAndWriteSearcherBackendCategoryMap(categories):
-		import os
-		path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-			'searcher_gumtree_category_map.py')
-		searcher_gumtree_category_map = {category: category.split('.')[-1] for category in categories}
-		Gumtree.serialize_dict_to_python_module(searcher_gumtree_category_map,
-			path,
-			'searcher_gumtree_category_map',
-		)
-
-	def get_category_id(self, category):
-		"""Get the gumtree catId associated with a searcher category.
-		"""
-		assert category in self.searcher_gumtree_category_map, "Category '%s' doesn't correspond to any Gumtree category." % category
-		# First get the gumtree category associated with the searcher category.
-		category_name = self.searcher_gumtree_category_map[category]
-		# Then return the catId associated with that category_name.
-		return self.categories[category_name]
-
-	def get_location_id(self, location):
-		assert location in self.searcher_gumtree_location_map, "Location '%s' doesn't correspond to any Gumtree location." % location
-		# First get the gumtree location associated with the searcher location.
-		location_name = self.searcher_gumtree_location_map[location]
-		# Then return the catId associated with that location_name.
-		return self.locations[location_name]
+		self.category_id_map = load_json(__file__, 'category_id_map.json')
+		self.location_id_map = load_json(__file__, 'location_id_map.json')
+		self.category_map = load_json(__file__, 'category_map.json')
+		self.location_map = load_json(__file__, 'location_map.json')
 
 	def search(self, query, category='All Categories', location='South Africa'):
 		"""Search for ads on gumtree, returning the results as a list
 		of elements of type gumtree.Advertisement.
 		"""
-		logger.debug('Searching for query:%s, category:%s', query, category)
+		logger.debug('Searching for query:%s, category:%s, location:%s', query, category, location)
 		catId = self.get_category_id(category)
 		locId = self.get_location_id(location)
 		# Build the search url, combining search terms and categories.
@@ -81,7 +31,6 @@ class Gumtree(object):
 			'catId': catId,
 			'locId': locId,
 			})])
-		print(url)
 		# Get the page's contents.
 		contents = self.get_page_contents(url)
 		# Parse gumtree's response to the mechanize browser.
@@ -89,8 +38,73 @@ class Gumtree(object):
 		# Get Advertisement objects from the soup.
 		return self.parse_search_results_page(soup)
 
-	@staticmethod
-	def get_page_contents(url):
+	def bootstrap_maps(self):
+		"""Write a default category and location map that just maps 1:1 between
+		searcher categories and gumtree categories, and searcher locations and
+		gumtree locations.
+		"""
+		# Import this here to avoid circular imports.
+		from moocha import Searcher
+		# Make a searcher instance to get the categories and locations from.
+		searcher = Searcher()
+		# Build the category and location maps.
+		category_map = {category: category for category in searcher.categories}
+		dump_json(category_map, __file__, 'category_map.json')
+		location_map = {location: location for location in searcher.locations}
+		dump_json(location_map, __file__, 'location_map.json')
+		# Get the category and location id maps from gumtree.co.za.
+		category_id_map = self.get_category_id_map_from_website()
+		dump_json(category_id_map, __file__, 'category_id_map.json')
+		location_id_map = self.get_location_id_map_from_website()
+		dump_json(location_id_map, __file__, 'location_id_map.json')
+
+	def get_category_id_map_from_website(self):
+		"""Get a dict associating gumtree categories with their 'catId'.
+		This data is still raw and not in the format used by Searcher.
+		"""
+		logger.warn("Getting categories from gumtree's website.")
+		# Get the contents of the home page.
+		home_page_contents = self.get_page_contents(self.home_page_url)
+		logger.debug("Fetched gumtree's home page.")
+		assert len(home_page_contents)
+		# Parse the homepage using BeautifulSoup
+		soup = BeautifulSoup(home_page_contents)
+		# The js variable containing the categories.
+		javascript_variable_name = 'CATEGORY_FILTER_JSON'
+		# Get the script containing this variable.
+		script = self.get_script_containing_variable(javascript_variable_name, soup)	
+		# Get the value of this variable after assignment.
+		categories_json = self.extract_assignments_value_from_javascript(
+			variable_name=javascript_variable_name,
+			javascript=script,
+		)
+		# Parse the categories into a dict.
+		categories_dict = json.loads(categories_json)
+		# Now flatten this dict into a dict associateing dot concatinated sub-
+		# categories and their 'catId' and return it.
+		return self.flatten_gumtree_select_dict(categories_dict)
+
+	def get_category_id(self, searcher_category):
+		"""Get the gumtree catId associated with a searcher category.
+		"""
+		assert searcher_category in self.category_map, "Searcher category '%s' doesn't correspond to any Gumtree category." % searcher_category
+		# First get the gumtree category associated with the searcher category.
+		gumtree_category = self.category_map[searcher_category]
+		# Then return the catId associated with that category_name.
+		assert gumtree_category in self.category_id_map, "Gumtree category '%s' doesn't correspond to any Gumtree CatId." % gumtree_category
+		return self.category_id_map[gumtree_category]
+
+	def get_location_id(self, searcher_location):
+		"""Get the gumtree locId associated with a searcher location.
+		"""
+		assert searcher_location in self.location_map, "Searcher location '%s' doesn't correspond to any Gumtree location." % searcher_location
+		# First get the gumtree location associated with the searcher location.
+		gumtree_location = self.location_map[searcher_location]
+		# Then return the catId associated with that location_name.
+		assert gumtree_location in self.location_id_map, "Gumtree location '%s' doesn't correspond to any Gumtree locId." % gumtree_location
+		return self.location_id_map[gumtree_location]
+
+	def get_page_contents(self, url):
 		"""Fetch the raw contents of a web page (the html text).
 		"""
 		# Instantiate a mechanize browser to open the page, (makes
@@ -120,42 +134,13 @@ class Gumtree(object):
 			search_results += [Advertisement.from_search_listing(listing) for listing in listings]
 		return search_results
 
-	@staticmethod
-	def GetCategoriesFromWebsite():
-		"""Get a dict associating gumtree's categories with their 'catId'
-		from gumtree's homepage.
 
-		This data is still raw and not in the format used by Searcher.
-		"""
-		logger.warn("Getting categories from gumtree's website.")
-		# Get the contents of the home page.
-		home_page_contents = Gumtree.get_page_contents(Gumtree.home_page_url)
-		logger.debug("Fetched gumtree's home page.")
-		assert len(home_page_contents)
-		# Parse the homepage using BeautifulSoup
-		soup = BeautifulSoup(home_page_contents)
-		# The js variable containing the categories.
-		javascript_variable_name = 'CATEGORY_FILTER_JSON'
-		# Get the script containing this variable.
-		script = Gumtree.get_script_containing_variable(javascript_variable_name, soup)	
-		# Get the value of this variable after assignment.
-		categories_json = Gumtree.extract_assignments_value_from_javascript(
-			variable_name=javascript_variable_name,
-			javascript=script,
-		)
-		# Parse the categories into a dict.
-		categories_dict = json.loads(categories_json)
-		# Now flatten this dict into a dict associateing dot concatinated sub-
-		# categories and their 'catId' and return it.
-		return Gumtree.flatten_gumtree_select_dict(categories_dict)
-
-	@staticmethod
-	def GetLocationsFromWebsite():
+	def get_location_id_map_from_website(self):
 		"""Get a dict associating gumtree's locations with their location id.
 		"""
 		logger.warn("Getting locations from gumtree's website.")
 		# Get the contents of the home page.
-		home_page_contents = Gumtree.get_page_contents(Gumtree.home_page_url)
+		home_page_contents = self.get_page_contents(self.home_page_url)
 		logger.debug("Fetched gumtree's home page.")
 		assert len(home_page_contents)
 		# Parse the homepage using BeautifulSoup.
@@ -163,9 +148,9 @@ class Gumtree(object):
 		# The name of the variable to scrape.
 		javascript_variable_name = 'LOCATION_FILTER_JSON'
 		# Get the script containing the variable name.
-		script = Gumtree.get_script_containing_variable(javascript_variable_name, soup)
+		script = self.get_script_containing_variable(javascript_variable_name, soup)
 		# Extract the assignment of the javascript variable.
-		locations_json = Gumtree.extract_assignments_value_from_javascript(
+		locations_json = self.extract_assignments_value_from_javascript(
 			variable_name=javascript_variable_name,
 			javascript=script,
 		)
@@ -173,10 +158,9 @@ class Gumtree(object):
 		locations_dict = json.loads(locations_json)
 		# Now flatten this dict into a dict associateing dot concatinated sub-
 		# areas and their 'areaId' and return it.
-		return Gumtree.flatten_gumtree_select_dict(locations_dict)
+		return self.flatten_gumtree_select_dict(locations_dict)
  
- 	@staticmethod
-	def extract_assignments_value_from_javascript(variable_name, javascript):
+	def extract_assignments_value_from_javascript(self, variable_name, javascript):
 		"""Given a snippet of javascript with an assignment,
 		extract the value of the assignment, (extract the right
 		hand side).
@@ -187,8 +171,7 @@ class Gumtree(object):
 		return (line.replace('var ' + variable_name + ' = ', '')
 			.replace(';', ''))
 
-	@staticmethod
-	def get_script_containing_variable(variable_name, soup):
+	def get_script_containing_variable(self, variable_name, soup):
 		"""Return the string contents of a script element containing
 		the given variable name.
 		"""
@@ -196,8 +179,7 @@ class Gumtree(object):
 		scripts = [str(script.string) for script in soup.find_all('script')]
 		return next(script for script in scripts if variable_name in script)
 
-	@staticmethod
-	def flatten_gumtree_select_dict(all_elements):
+	def flatten_gumtree_select_dict(self, all_elements):
 		"""Take a dict in gumtree's format for select dropdown
 		and flatten it into a dot seperated dict associating
 		the dot concatinated element names and their id.

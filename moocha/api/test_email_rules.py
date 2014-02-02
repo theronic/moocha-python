@@ -43,7 +43,7 @@ class TestEmailRules(TestCase):
 		mock = Mock(wraps=email_rules.EmailRuleForm)
 		email_rules.EmailRuleForm = mock
 		mock_data = {'hello': 'world'}
-		self.json_post('/api/email_rules/', mock_data)
+		self.json_post(url_for('api.create_email_rule'), mock_data)
 		mock.assert_called_once_with(**mock_data)
 
 	def test_create_email_rule_creates_email_rule_model_in_the_db(self):
@@ -69,9 +69,9 @@ class TestEmailRules(TestCase):
 			'query': 'search',
 			'category': 'All Categories.Property.Short Term',
 		}
-		self.json_post('/api/email_rules/', mock_data)
+		self.json_post(url_for('api.create_email_rule'), mock_data)
 		self.assertEqual(db.session.query(EmailRule).count(), 1)
-		self.json_post('/api/email_rules/', mock_data)
+		self.json_post(url_for('api.create_email_rule'), mock_data)
 		self.assertEqual(db.session.query(EmailRule).count(), 1)
 
 	def test_create_email_rule_responds_correctly_to_duplicate_post(self):
@@ -80,8 +80,8 @@ class TestEmailRules(TestCase):
 			'query': 'search',
 			'category': 'All Categories.Property.Short Term',
 		}
-		self.json_post('/api/email_rules/', mock_data)
-		second_response = self.json_post('/api/email_rules/', mock_data)
+		self.json_post(url_for('api.create_email_rule'), mock_data)
+		second_response = self.json_post(url_for('api.create_email_rule'), mock_data)
 		self.assertEqual(second_response.status_code, 409)
 		second_result = second_response.json
 		self.assertFalse(second_result['success'])
@@ -93,7 +93,7 @@ class TestEmailRules(TestCase):
 				'query': 'search',
 				'category': 'All Categories.Property.Short Term',
 			}
-			response = self.json_post('/api/email_rules/', mock_data)
+			response = self.json_post(url_for('api.create_email_rule'), mock_data)
 			self.assertEqual(response.status_code, 400)
 			result = response.json
 			self.assertFalse(result['success'])
@@ -107,7 +107,7 @@ class TestEmailRules(TestCase):
 				'query': 'search',
 				'category': category,
 			}
-			response = self.json_post('/api/email_rules/', mock_data)
+			response = self.json_post(url_for('api.create_email_rule'), mock_data)
 			self.assertEqual(response.status_code, 400)
 			result = response.json
 			self.assertFalse(result['success'])
@@ -115,7 +115,7 @@ class TestEmailRules(TestCase):
 			check_fails_validation(category)
 
 	def test_get_email_rules_handles_no_email_rules_in_db(self):
-		response = self.client.get('/api/email_rules/')
+		response = self.client.get(url_for('api.get_email_rules'))
 		self.assertEqual(response.status_code, 200)
 		email_rules, count = self.get_list(response.json, 'email_rules')
 		self.assertEqual(len(email_rules), 0)
@@ -125,7 +125,7 @@ class TestEmailRules(TestCase):
 		mock_email_rule = EmailRule('foo', 'bar', 'baz')
 		db.session.add(mock_email_rule)
 		db.session.commit()
-		response = self.client.get('/api/email_rules/')
+		response = self.client.get(url_for('api.get_email_rules'))
 		self.assertEqual(response.status_code, 200)
 		email_rules, count = self.get_list(response.json, 'email_rules')
 		self.assertEqual(len(email_rules), count)

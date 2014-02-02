@@ -8,8 +8,11 @@ console_handler = logging.StreamHandler()
 #console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 from config import config
+from gumtree import Gumtree
 
 db = SQLAlchemy()
+
+gumtree_instance = Gumtree()
 
 def create_app(*args, **kwagrs):
 	app = Flask(__name__, static_folder='ui', static_url_path='')

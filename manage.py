@@ -1,7 +1,6 @@
 from flask_script import Manager, Shell
-from moocha import create_app, sender_instance, db
+from moocha import create_app, sender_instance, db, gumtree_instance, searcher_instance
 from moocha.gumtree import Gumtree
-from moocha import searcher 
 from moocha import models
 import nose
 import logging
@@ -17,7 +16,7 @@ manager = Manager(app)
 def make_shell_context():
 	return dict(
 		app=app,
-		gt=Gumtree(),
+		gt=gumtree_instance,
 		models=models,
 		db=db,
 	)
@@ -34,7 +33,7 @@ def send_emails():
 
 @manager.command
 def test():
-	nose.main(argv=['moocha --failed'])
+	nose.main(argv=['moocha', '--failed'])
 
 @manager.command
 def integration_test():
@@ -53,35 +52,14 @@ def serialize_list_to_python_module(list_, module_path, variable_name):
 
 @manager.command
 def bootstrap_categories_and_locations():
-	logger.warn("Overwriting the list of categories with the current categories from Gumtree.")
-	searcher_file = searcher.__file__
-	searcher_directory = os.path.dirname(os.path.realpath(searcher_file))
-	categories_file_path = os.path.join(searcher_directory, 'categories.py')
-	categories = Gumtree.GetCategoriesFromWebsite()
-	assert len(categories)
-	logger.info("Got %d categories.", len(categories))
-	logger.info("Writing categories to %s", categories_file_path)
-	serialize_list_to_python_module(categories,
-		categories_file_path,
-		'categories'
-	)
-	logger.warn("Overwriting the list of locations with the current locations from Gumtree.")
-	locations_file_path = os.path.join(searcher_directory, 'locations.py')
-	locations = Gumtree.GetLocationsFromWebsite()
-	assert len(locations)
-	serialize_list_to_python_module(locations,
-		locations_file_path,
-		'locations',
-	)
+	searcher_instance.bootstrap_categories_and_locations()
 
 @manager.command
-def build_and_write_backend_maps():
-	categories = searcher.categories.categories
-	locations = searcher.locations.locations
-	backends = searcher.Searcher.backends
-	for backend in backends:
-		backend.BuildAndWriteSearcherBackendCategoryMap(categories)
-		backend.BuildAndWriteSearcherBackendLocationMap(locations)
+def bootstrap_gumtree_maps():
+	"""Build a default gumtree category to searcher category and
+	gumtree location to searcher location map.
+	"""
+	gumtree_instance.bootstrap_maps()
 
 #TODO: Implement a dev command which runs create_all and then runs the server.
 

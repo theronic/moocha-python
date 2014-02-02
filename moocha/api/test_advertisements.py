@@ -1,3 +1,4 @@
+from flask import url_for
 from mock import Mock
 import unittest
 from flask.ext.testing import TestCase
@@ -31,7 +32,7 @@ class TestEmailRules(TestCase):
 		return app
 
 	def test_get_advertisements_works_with_no_ads(self):
-		response = self.client.get('/api/advertisements/')
+		response = self.client.get(url_for('api.get_advertisements'))
 		self.assertEqual(response.status_code, 200)
 		result = response.json
 		ads, count = self.get_list(result, 'advertisements')
@@ -43,7 +44,7 @@ class TestEmailRules(TestCase):
 		ad = Advertisement(fuzz(), fuzz(), fuzz())
 		db.session.add(ad)
 		db.session.commit()
-		response = self.client.get('/api/advertisements/')
+		response = self.client.get(url_for('api.get_advertisements'))
 		self.assertEqual(response.status_code, 200)
 		result = response.json
 		ads, count = self.get_list(result, 'advertisements')

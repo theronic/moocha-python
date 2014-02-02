@@ -120,12 +120,12 @@ class TestGumtree(unittest.TestCase):
 			self.gumtree.get_page_contents = Mock(return_value=search_result_page.read())
 			results = self.gumtree.search(fuzz())
 
-	def test_get_categories_from_website(self):
+	def test_get_category_id_map_from_website(self):
 		page_contents = None
 		with open('moocha/gumtree/test_pages/index.html') as f:
 			page_contents = f.read()
 		self.gumtree.get_page_contents = Mock(return_value=page_contents)
-		categories = self.gumtree.GetCategoriesFromWebsite()
+		categories = self.gumtree.get_category_id_map_from_website()
 		self.assertIn('All Categories.Property.Short Term', categories)
 		self.assertEqual(categories['All Categories.Property.Short Term'], 9001)
 
@@ -135,12 +135,12 @@ class TestGumtree(unittest.TestCase):
 		self.assertIsInstance(categories, dict)
 		self.assertIn('All Categories.Property.Short Term', categories)
 
-	def test_get_locations_from_website(self):
+	def test_get_location_id_map_from_website(self):
 		page_contents = None
 		with open('moocha/gumtree/test_pages/index.html') as f:
 			page_contents = f.read()
 		self.gumtree.get_page_contents = Mock(return_value=page_contents)
-		locations = self.gumtree.GetLocationsFromWebsite()
+		locations = self.gumtree.get_location_id_map_from_website()
 		self.assertIn('South Africa.Gauteng.Pretoria / Tshwane', locations)
 		self.assertEqual(locations['South Africa.Gauteng.Pretoria / Tshwane'], 3100094)
 

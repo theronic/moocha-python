@@ -4,6 +4,7 @@ import email_rules
 
 class Advertisement(db.Model):
 	__tablename__ = 'advertisements'
+
 	id = db.Column(db.Integer, primary_key=True)
 
 	title = db.Column(db.String(256))
@@ -12,10 +13,13 @@ class Advertisement(db.Model):
 
 	source = db.Column(db.String(256))
 
-	def __init__(self, title, description, source):
+	thumbnail_url = db.Column(db.String(256))
+
+	def __init__(self, title, description, source, thumbnail_url=None):
 		self.title = title
 		self.description = description
 		self.source = source
+		self.thumbnail_url = thumbnail_url
 
 	def __eq__(self, other):
 		for attr in ['title', 'description']:
@@ -29,9 +33,10 @@ class Advertisement(db.Model):
 	@staticmethod
 	def FromGumtree(advertisement):
 		return Advertisement(
+			source='Gumtree',
 			title=advertisement.title,
 			description=advertisement.description,
-			source='Gumtree'
+			thumbnail_url=advertisement.thumbnail_url,
 		)
 
 	@staticmethod
@@ -51,4 +56,5 @@ class Advertisement(db.Model):
 			'title': self.title,
 			'description': self.description,
 			'source': self.source,
+			'thumbnail_url': self.thumbnail_url,
 		}
